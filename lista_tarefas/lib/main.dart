@@ -45,13 +45,16 @@ class _HomeState extends State<Home> {
     });
   }
 
-  Future<Null> _refreshList() async{
+  Future<Null> _refreshList() async {
     await Future.delayed(Duration(seconds: 1));
     setState(() {
-      _toDoList.sort((a,b){
-        if( a["ok"] && ! b["ok"]) return 1;
-        else if( !a["ok"] &&  b["ok"]) return -1;
-        else return 0;
+      _toDoList.sort((a, b) {
+        if (a["ok"] && !b["ok"])
+          return 1;
+        else if (!a["ok"] && b["ok"])
+          return -1;
+        else
+          return 0;
       });
     });
   }
@@ -81,10 +84,7 @@ class _HomeState extends State<Home> {
           });
         },
       ),
-      key: Key(DateTime
-          .now()
-          .microsecond
-          .toString()),
+      key: Key(DateTime.now().microsecond.toString()),
       onDismissed: (direction) {
         setState(() {
           _lastRemoved = Map.from(_toDoList[index]);
@@ -132,6 +132,47 @@ class _HomeState extends State<Home> {
     }
   }
 
+  Future<void> _askedToLead() async {
+    await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return SimpleDialog(
+            // title: Align(
+            //   alignment: Alignment(0, 0),
+            //   child: Text('Descreva a tarefa'),
+            // ),
+            title: null,
+            children: <Widget>[
+              Container(
+                  padding: EdgeInsets.fromLTRB(17, 1, 17, 1),
+                  child: Column(
+                    children: <Widget>[
+                      TextField(
+                        controller: _toDoController,
+                        decoration: InputDecoration(
+                            labelText: "Nova Tarefa",
+                            labelStyle: TextStyle(color: Colors.blueAccent)),
+                        autofocus: true,
+                      ),
+                      Padding(
+                        padding: EdgeInsets.only(top: 10),
+                        child: RaisedButton(
+                          color: Colors.blueAccent,
+                          child: Text("Salvar"),
+                          textColor: Colors.white,
+                          onPressed: (){
+                            _add_ToDo();
+                            Navigator.pop(context);
+                          },
+                        ),
+                      )
+                    ],
+                  )),
+            ],
+          );
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,34 +183,42 @@ class _HomeState extends State<Home> {
       ),
       body: Column(
         children: [
-          Container(
-            padding: EdgeInsets.fromLTRB(17, 1, 7, 1),
-            child: Row(
-              children: [
-                Expanded(
-                    child: TextField(
-                      controller: _toDoController,
-                      decoration: InputDecoration(
-                          labelText: "Nova Tarefa",
-                          labelStyle: TextStyle(color: Colors.blueAccent)),
-                    )),
-                RaisedButton(
-                  color: Colors.blueAccent,
-                  child: Text("Add"),
-                  textColor: Colors.white,
-                  onPressed: _add_ToDo,
-                )
-              ],
-            ),
-          ),
+          // Container(
+          //   padding: EdgeInsets.fromLTRB(17, 1, 7, 1),
+          //   child: Row(
+          //     children: [
+          //       Expanded(
+          //           child: TextField(
+          //         controller: _toDoController,
+          //         decoration: InputDecoration(
+          //             labelText: "Nova Tarefa",
+          //             labelStyle: TextStyle(color: Colors.blueAccent)),
+          //       )),
+          //       RaisedButton(
+          //         color: Colors.blueAccent,
+          //         child: Text("Add"),
+          //         textColor: Colors.white,
+          //         onPressed: _add_ToDo,
+          //       )
+          //     ],
+          //   ),
+          // ),
           Expanded(
-            child: RefreshIndicator(onRefresh: _refreshList,
+            child: RefreshIndicator(
+              onRefresh: _refreshList,
               child: ListView.builder(
                   padding: EdgeInsets.only(top: 10),
                   itemCount: _toDoList.length,
-                  itemBuilder: buildItem),),
+                  itemBuilder: buildItem),
+            ),
           )
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _askedToLead,
+        tooltip: 'Adicionar Tarefa',
+        child: Icon(Icons.add),
+        backgroundColor: Colors.green,
       ),
     );
   }
