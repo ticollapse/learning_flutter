@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 void main() {
@@ -18,10 +19,12 @@ class _HomeState extends State<Home> {
   List _toDoList = [];
 
   final _toDoController = TextEditingController();
+  final _selectedDateController = TextEditingController();
 
   Map<String, dynamic> _lastRemoved;
-
   int _lastRemovedPos;
+
+  DateTime _selectedDate = DateTime.now();
 
   @override
   void initState() {
@@ -40,6 +43,7 @@ class _HomeState extends State<Home> {
       newToDo["title"] = _toDoController.text;
       _toDoController.text = "";
       newToDo["ok"] = false;
+      newToDo["date"] = "${_selectedDate.day.toString().padLeft(2,'0')}/${_selectedDate.month.toString().padLeft(2,'0')}/${_selectedDate.year}";
       _toDoList.add(newToDo);
       _saveData();
     });
@@ -49,9 +53,17 @@ class _HomeState extends State<Home> {
     await Future.delayed(Duration(seconds: 1));
     setState(() {
       _toDoList.sort((a, b) {
-        if (a["ok"] && !b["ok"])
+        print("Entrou");
+        DateTime dateA = DateFormat('dd/MM/yyyy').parseLoose(a["date"]);
+        DateTime dateB = DateFormat('dd/MM/yyyy').parseLoose(b["date"]);
+        print("Ola");
+        if (dateA.isBefore(dateB) && !(a["ok"] && !b["ok"])  )
+          return -1;
+        else if (dateA.isBefore(dateB))
           return 1;
-        else if (!a["ok"] && b["ok"])
+        else if (dateB.isBefore(dateA) && !(b["ok"] && !a["ok"]) )
+          return 1;
+        else if (dateB.isBefore(dateA))
           return -1;
         else
           return 0;
@@ -73,7 +85,7 @@ class _HomeState extends State<Home> {
       ),
       direction: DismissDirection.startToEnd,
       child: CheckboxListTile(
-        title: Text(_toDoList[index]["title"]),
+        title: Text("${_toDoList[index]["title"]} - ${_toDoList[index]["date"]}" ),
         value: _toDoList[index]["ok"],
         secondary: CircleAvatar(
             child: Icon(_toDoList[index]["ok"] ? Icons.check : Icons.error)),
@@ -132,44 +144,75 @@ class _HomeState extends State<Home> {
     }
   }
 
-  Future<void> _askedToLead() async {
+  Future<void> _popUpCreateTask() async {
     await showDialog(
         context: context,
         builder: (BuildContext context) {
-          return SimpleDialog(
-            // title: Align(
-            //   alignment: Alignment(0, 0),
-            //   child: Text('Descreva a tarefa'),
-            // ),
-            title: null,
-            children: <Widget>[
-              Container(
-                  padding: EdgeInsets.fromLTRB(17, 1, 17, 1),
-                  child: Column(
-                    children: <Widget>[
-                      TextField(
-                        controller: _toDoController,
-                        decoration: InputDecoration(
-                            labelText: "Nova Tarefa",
-                            labelStyle: TextStyle(color: Colors.blueAccent)),
-                        autofocus: true,
-                      ),
-                      Padding(
-                        padding: EdgeInsets.only(top: 10),
-                        child: RaisedButton(
-                          color: Colors.blueAccent,
-                          child: Text("Salvar"),
-                          textColor: Colors.white,
-                          onPressed: (){
-                            _add_ToDo();
-                            Navigator.pop(context);
-                          },
+          return StatefulBuilder(builder: (context, setState) {
+            return SimpleDialog(
+              // title: Align(
+              //   alignment: Alignment(0, 0),
+              //   child: Text('Descreva a tarefa'),
+              // ),
+              title: null,
+              children: <Widget>[
+                Container(
+                    padding: EdgeInsets.fromLTRB(17, 1, 10, 0),
+                    child: Column(
+                      children: <Widget>[
+                        TextField(
+                          controller: _toDoController,
+                          decoration: InputDecoration(
+                              labelText: "Nova Tarefa",
+                              labelStyle: TextStyle(color: Colors.blueAccent)),
+                          autofocus: true,
                         ),
-                      )
-                    ],
-                  )),
-            ],
-          );
+                        Align(
+                          alignment: Alignment(-0.9, 0),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 15),
+                            child: GestureDetector(
+                              child: Text(
+                                "Selecionar Data: ${_selectedDate.day}/${_selectedDate.month}/${_selectedDate.year}",
+                                style: TextStyle(fontSize: 17),
+                              ),
+                              onTap: () {
+                                showDatePicker(
+                                  context: context,
+                                  initialDate: _selectedDate,
+                                  // Refer step 1
+                                  firstDate: DateTime(2000),
+                                  lastDate: DateTime(2025),
+                                ).then((value) {
+                                  if (value != null && value != _selectedDate)
+                                    setState(() {
+                                      _selectedDate = value;
+                                    });
+                                });
+                              },
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment(0, 0),
+                          child: Padding(
+                            padding: EdgeInsets.only(top: 5),
+                            child: RaisedButton(
+                              color: Colors.blueAccent,
+                              child: Text("Salvar"),
+                              textColor: Colors.white,
+                              onPressed: () {
+                                _add_ToDo();
+                                Navigator.pop(context);
+                              },
+                            ),
+                          ),
+                        )
+                      ],
+                    )),
+              ],
+            );
+          });
         });
   }
 
@@ -215,7 +258,7 @@ class _HomeState extends State<Home> {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _askedToLead,
+        onPressed: _popUpCreateTask,
         tooltip: 'Adicionar Tarefa',
         child: Icon(Icons.add),
         backgroundColor: Colors.green,
