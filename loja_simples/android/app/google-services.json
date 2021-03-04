@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "672740828141",
+    "project_id": "lojasimples-bc487",
+    "storage_bucket": "lojasimples-bc487.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672740828141:android:d0339aba36fac065e77de4",
+        "android_client_info": {
+          "package_name": "br.com.loja_simples"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "672740828141-qmgg5tq1cdp8pdj1asqai8vf97qrh9k4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.loja_simples",
+            "certificate_hash": "bfab4ca3cffb194ae8c785a09a050c3a6ba4d9c0"
+          }
+        },
+        {
+          "client_id": "672740828141-t9dsilnt2756iggij7eotvetd769qtan.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1t9gvZsgcPOZEjsv8-tHtELNJd-Nv3Ms"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "672740828141-t9dsilnt2756iggij7eotvetd769qtan.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
